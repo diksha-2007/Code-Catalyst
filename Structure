@@ -1,0 +1,148 @@
+🧠 PWID Care Monitoring System
+
+A frontend-based healthcare monitoring web application designed to support caregivers and healthcare providers working with People with Intellectual Disabilities (PWID).
+The system helps in documenting behavior, monitoring physical health, visualizing trends, and assisting caregivers through an intelligent rule-based chatbot.
+
+🎯 Problem Statement
+
+Caregivers and healthcare professionals currently lack a systematic and user-friendly way to:
+
+Record daily behavioral observations
+
+Monitor physical health parameters
+
+Analyze long-term patterns
+
+Identify potential health or behavioral risks early
+
+This project addresses these challenges by providing a centralized monitoring dashboard that works entirely in the browser.
+
+🌟 Key Features
+👤 Patient Management
+
+Store basic patient information (name and age)
+
+Data saved securely in browser local storage
+
+🧠 Behavior Tracking
+
+Log daily behavioral observations (Calm, Aggressive, Anxious, etc.)
+
+Maintain historical behavior records
+
+❤️ Physical Health Monitoring
+
+Record weight and body temperature
+
+Track changes over time
+
+📊 Data Visualization
+
+Behavior Frequency Chart (Bar Chart)
+
+Weight Trend Chart (Line Chart)
+
+Temperature Trend Chart (Line Chart)
+
+🤖 Smart Care Assistant (Chatbot)
+
+Rule-based chatbot (no backend, no API)
+
+Understands caregiver queries such as:
+
+Patient summary
+
+Behavior analysis
+
+Health status
+
+Recent records
+
+Generates alerts for:
+
+Repeated aggressive behavior
+
+High temperature
+
+Sudden weight changes
+
+Quick-action buttons for easy interaction
+
+🔐 Privacy & Safety
+
+No internet connection required
+
+No patient data leaves the device
+
+Safe for demo, academic, and prototype use
+
+🛠️ Technology Stack
+Layer	Technology
+Frontend	HTML, Tailwind CSS, JavaScript
+Charts	Chart.js
+Storage	Browser LocalStorage
+Chatbot	Rule-based JavaScript logic
+📁 Project Structure
+PWID-Care-Monitoring/
+│
+├── index.html        # Complete application (UI + logic)
+├── README.md         # Project documentation
+
+🚀 How to Run the Project
+
+Download or clone the repository
+
+Open index.html in any modern web browser
+
+Start entering patient data and observations
+
+View charts and interact with the chatbot
+
+✅ No server, no installation, no dependencies required
+
+💬 Example Chatbot Queries
+
+“Patient summary”
+
+“Behavior analysis”
+
+“Health status”
+
+“Last record”
+
+“Any risks?”
+
+🧪 Use Cases
+
+Caregivers monitoring daily PWID activities
+
+Healthcare students learning patient data analysis
+
+Academic projects and demonstrations
+
+Early-stage healthcare product prototypes
+
+🔮 Future Enhancements
+
+Multi-patient support
+
+Daily / weekly automated reports
+
+Role-based views (caregiver vs doctor)
+
+Backend integration (Node.js + MongoDB)
+
+AI-powered chatbot (optional)
+
+Export reports (PDF / CSV)
+
+⚠️ Disclaimer
+
+This application is not a medical diagnostic tool.
+It is intended to support caregivers and healthcare professionals by organizing data and highlighting trends.
+Clinical decisions should always be made by qualified medical professionals.
+
+👩‍💻 Author
+
+Developed as an academic and practical healthcare support project
+for improving care quality for People with Intellectual Disabilities (PWID).
