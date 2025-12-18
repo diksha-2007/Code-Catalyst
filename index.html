@@ -87,6 +87,24 @@
 
   </div>
 
+<!-- Chatbot -->
+<div class="fixed bottom-4 right-4 w-80 bg-white shadow-xl rounded-lg flex flex-col">
+  <div class="bg-blue-600 text-white p-3 rounded-t-lg font-semibold">
+    Care Assistant 🤖
+  </div>
+
+  <div id="chatMessages" class="p-3 h-64 overflow-y-auto text-sm space-y-2"></div>
+
+  <div class="flex border-t">
+    <input id="chatInput"
+      class="flex-1 p-2 text-sm outline-none"
+      placeholder="Ask something..." />
+    <button onclick="sendMessage()"
+      class="bg-blue-600 text-white px-4">
+      Send
+    </button>
+  </div>
+</div>
 <script>
   const recordsDiv = document.getElementById("records");
 
@@ -198,9 +216,169 @@
   const behaviorChartCanvas = document.getElementById("behaviorChart");
   const weightChartCanvas = document.getElementById("weightChart");
   const tempChartCanvas = document.getElementById("tempChart");
-
+  
   render();
 </script>
+<script>
+const chatMessages = document.getElementById("chatMessages");
+
+function botMessage(text) {
+  chatMessages.innerHTML += `
+    <div class="bg-gray-200 p-2 rounded w-fit max-w-xs">
+      🤖 ${text}
+    </div>`;
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+function userMessage(text) {
+  chatMessages.innerHTML += `
+    <div class="bg-blue-100 p-2 rounded ml-auto w-fit max-w-xs">
+      🧑 ${text}
+    </div>`;
+}
+
+function sendMessage(msgFromBtn = null) {
+  const inputEl = document.getElementById("chatInput");
+  const msg = msgFromBtn || inputEl.value.trim();
+  if (!msg) return;
+
+  userMessage(msg);
+  inputEl.value = "";
+
+  setTimeout(() => respond(msg.toLowerCase()), 400);
+}
+
+function respond(msg) {
+  const data = JSON.parse(localStorage.getItem("data")) || [];
+  const patient = JSON.parse(localStorage.getItem("patient"));
+
+  /* ---------- GREETING ---------- */
+  if (/hi|hello|hey/.test(msg)) {
+    botMessage(
+      "Hello 👋 I can help you analyze patient behavior and health.<br><br>" +
+      quickButtons()
+    );
+    return;
+  }
+
+  /* ---------- PATIENT SUMMARY ---------- */
+  if (msg.includes("summary") || msg.includes("overview")) {
+    if (!patient) {
+      botMessage("No patient profile found.");
+      return;
+    }
+
+    const behaviors = data.filter(d => d.type === "Behavior");
+    const health = data.filter(d => d.type === "Health");
+
+    botMessage(`
+      <strong>Patient Summary</strong><br>
+      👤 Name: ${patient.name}<br>
+      🎂 Age: ${patient.age}<br>
+      🧠 Behaviors logged: ${behaviors.length}<br>
+      ❤️ Health records: ${health.length}
+    `);
+    return;
+  }
+
+  /* ---------- BEHAVIOR ANALYSIS ---------- */
+  if (msg.includes("behavior")) {
+    const behaviors = data.filter(d => d.type === "Behavior");
+    if (!behaviors.length) {
+      botMessage("No behavior data available yet.");
+      return;
+    }
+
+    const count = {};
+    behaviors.forEach(b => count[b.value] = (count[b.value] || 0) + 1);
+
+    const risky = count["Aggressive"] >= 3;
+
+    botMessage(`
+      <strong>Behavior Analysis</strong><br>
+      ${Object.entries(count).map(([k,v]) => `• ${k}: ${v}`).join("<br>")}
+      ${risky ? "<br><br>⚠️ Aggressive behavior appears frequently. Consider identifying triggers." : ""}
+    `);
+    return;
+  }
+
+  /* ---------- HEALTH STATUS ---------- */
+  if (msg.includes("health") || msg.includes("temperature") || msg.includes("weight")) {
+    const health = data.filter(d => d.type === "Health");
+    if (!health.length) {
+      botMessage("No health data recorded yet.");
+      return;
+    }
+
+    const latest = health.at(-1);
+    let alerts = [];
+
+    if (latest.temp > 37.5) alerts.push("🌡️ High temperature detected");
+    if (health.length > 1) {
+      const diff = latest.weight - health.at(-2).weight;
+      if (Math.abs(diff) >= 2) alerts.push("⚖️ Sudden weight change");
+    }
+
+    botMessage(`
+      <strong>Latest Health Status</strong><br>
+      ⚖️ Weight: ${latest.weight} kg<br>
+      🌡️ Temperature: ${latest.temp} °C
+      ${alerts.length ? "<br><br><strong>Alerts:</strong><br>" + alerts.join("<br>") : "<br><br>✅ No immediate risks detected"}
+    `);
+    return;
+  }
+
+  /* ---------- LAST RECORD ---------- */
+  if (msg.includes("last") || msg.includes("recent")) {
+    if (!data.length) {
+      botMessage("No records found.");
+      return;
+    }
+
+    const last = data.at(-1);
+    botMessage(`
+      <strong>Most Recent Entry</strong><br>
+      📅 ${last.date}<br>
+      ${last.type === "Behavior"
+        ? `🧠 Behavior: ${last.value}`
+        : `⚖️ Weight: ${last.weight} kg<br>🌡️ Temp: ${last.temp} °C`}
+    `);
+    return;
+  }
+
+  /* ---------- HELP ---------- */
+  if (msg.includes("help")) {
+    botMessage(
+      "You can ask me things like:<br>" +
+      "• Patient summary<br>" +
+      "• Behavior analysis<br>" +
+      "• Health status<br>" +
+      "• Last record"
+    );
+    return;
+  }
+
+  /* ---------- FALLBACK ---------- */
+  botMessage(
+    "I didn’t fully understand that 🤔<br>" +
+    "Try asking for a summary, behavior analysis, or health status."
+  );
+}
+
+function quickButtons() {
+  return `
+    <div class="mt-2 space-y-1">
+      <button onclick="sendMessage('patient summary')" class="text-xs bg-blue-100 px-2 py-1 rounded">Patient Summary</button>
+      <button onclick="sendMessage('behavior analysis')" class="text-xs bg-blue-100 px-2 py-1 rounded">Behavior</button>
+      <button onclick="sendMessage('health status')" class="text-xs bg-blue-100 px-2 py-1 rounded">Health</button>
+      <button onclick="sendMessage('last record')" class="text-xs bg-blue-100 px-2 py-1 rounded">Last Entry</button>
+    </div>
+  `;
+}
+
+botMessage("Hello! I’m your PWID Care Assistant 🤖<br>" + quickButtons());
+</script>
+
 
 </body>
 </html>
